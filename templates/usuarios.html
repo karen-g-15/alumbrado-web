@@ -2,32 +2,48 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Gestión de Usuarios</title>
+    <title>Gestión de Usuarios - Alumbrado TESE</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='estilos.css') }}">
 </head>
 <body>
-    <h2>Catálogo de Usuarios del Sistema</h2>
-    
-    <table border="1">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Usuario</th>
-                <th>Rol</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for u in lista_usuarios %}
-            <tr>
-                <td>{{ u.id }}</td>
-                <td>{{ u.username }}</td>
-                <td>{{ u.rol }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <nav>
+        <a href="{{ url_for('dashboard') }}">Inicio</a>
+        <a href="{{ url_for('monitoreo') }}">Monitoreo Histórico</a>
+        <a href="{{ url_for('usuarios') }}">Gestión Usuarios</a>
+        <a href="{{ url_for('logout') }}" style="color: red;">Cerrar Sesión</a>
+    </nav>
 
-    <br>
-    <a href="{{ url_for('dashboard') }}">Volver al Dashboard</a>
+    <div class="container">
+        <h1>Gestión de Usuarios</h1>
+        <p>Lista de personal con acceso al sistema de control de alumbrado.</p>
+        
+        <hr>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre de Usuario</th>
+                    <th>Rol de Acceso</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in lista_usuarios %}
+                <tr>
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.username }}</td>
+                    <td>
+                        <span class="badge {{ 'admin' if user.rol == 'admin' else 'user' }}">
+                            {{ user.rol.upper() }}
+                        </span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <br>
+        <a href="{{ url_for('dashboard') }}" class="btn-primary" style="text-decoration: none; display: inline-block; width: auto; padding: 10px 20px;">Volver al Panel</a>
+    </div>
 </body>
 </html>
