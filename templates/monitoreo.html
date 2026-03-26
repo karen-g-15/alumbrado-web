@@ -13,6 +13,20 @@
     </nav>
     <div class="container">
         <h2>Reporte de Operación de Postes</h2>
+        <div class="filter-container" style="background: #fff; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+    <form action="{{ url_for('monitoreo') }}" method="GET" style="display: flex; gap: 15px; align-items: flex-end;">
+        <div>
+            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Fecha Inicio:</label>
+            <input type="date" name="fecha_inicio" value="{{ f_ini }}" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+        </div>
+        <div>
+            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Fecha Fin:</label>
+            <input type="date" name="fecha_fin" value="{{ f_fin }}" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+        </div>
+        <button type="submit" class="btn-primary" style="width: auto; padding: 10px 25px;">Filtrar Datos</button>
+        <a href="{{ url_for('monitoreo') }}" style="text-decoration: none; color: #666; font-size: 0.9em;">Limpiar Filtro</a>
+    </form>
+</div>
         <table>
             <thead>
                 <tr>
