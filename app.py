@@ -3,37 +3,34 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 import mysql.connector
 from mysql.connector import Error
 
-# 1. Configuración de Rutas Absolutas (Soluciona el url_build_error)
+# 1. Configuración de Rutas (Soluciona el error de "handle_url_build_error")
 base_dir = os.path.dirname(os.path.abspath(__file__))
-template_dir = os.path.join(base_dir, 'templates')
-static_dir = os.path.join(base_dir, 'static')
 
 app = Flask(__name__, 
-            template_folder=template_dir, 
-            static_folder=static_dir)
+            static_folder=os.path.join(base_dir, 'static'),
+            template_folder=os.path.join(base_dir, 'templates'))
 
 app.secret_key = 'ingenieria_tese_karen_2026'
 
 # 2. Configuración de la Base de Datos Azure
-# Asegúrate de que este archivo esté en la raíz de tu GitHub
+# Asegúrate de que el archivo DigiCertGlobalRootG2.crt.pem esté en la raíz de tu GitHub
 cert_path = os.path.join(base_dir, 'DigiCertGlobalRootG2.crt.pem')
 
 def get_db_connection():
     """Establece la conexión con Azure MySQL"""
     return mysql.connector.connect(
         host='sistema-alumbrado-tese.mysql.database.azure.com',
-        user='admin_alumbrado', # Si falla, intenta: 'admin_alumbrado@sistema-alumbrado-tese'
-        password='Tese2023', # <--- REEMPLAZA CON TU CONTRASEÑA REAL
+        user='admin_alumbrado', 
+        password='Tese2023', # <--- REEMPLAZA CON TU CONTRASEÑA
         database='sistema_alumbrado',
         port=3306,
         ssl_ca=cert_path
     )
 
-# --- RUTAS DEL SISTEMA ---
+# --- RUTAS ---
 
 @app.route('/')
 def index():
-    """Redirección inicial"""
     if 'loggedin' in session:
         return redirect(url_for('dashboard'))
     return redirect(url_for('login'))
@@ -47,7 +44,7 @@ def login():
         try:
             conn = get_db_connection()
             cursor = conn.cursor(dictionary=True)
-            # Consulta de seguridad
+            # Validación de usuario
             query = "SELECT * FROM usuarios WHERE username = %s AND password = %s"
             cursor.execute(query, (user, pw))
             account = cursor.fetchone()
@@ -62,8 +59,7 @@ def login():
             else:
                 flash("Usuario o contraseña incorrectos", "danger")
         except Error as e:
-            # Si hay error de base de datos, lo verás en la pantalla
-            flash(f"Error de conexión a Azure: {e}", "warning")
+            flash(f"Error de base de datos: {e}", "warning")
             
     return render_template('login.html')
 
@@ -81,14 +77,14 @@ def monitoreo():
     try:
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
-        # Consulta de los postes de alumbrado
+        # Ajustado a tus tablas de alumbrado
         cursor.execute("SELECT id, fecha_registro, poste, estado, luz, validacion FROM historico ORDER BY id DESC LIMIT 50")
         datos = cursor.fetchall()
         cursor.close()
         conn.close()
         return render_template('monitoreo.html', registros=datos)
     except Error as e:
-        return f"Error crítico al obtener datos: {e}"
+        return f"Error al cargar monitoreo: {e}"
 
 @app.route('/logout')
 def logout():
@@ -98,7 +94,7 @@ def logout():
 # --- CONFIGURACIÓN DE ARRANQUE PARA RENDER ---
 
 if __name__ == '__main__':
-    # Render asigna un puerto dinámico mediante la variable de entorno PORT
+    # Render usa el puerto que le asigne la variable de entorno PORT
     port = int(os.environ.get("PORT", 5000))
-    # Mantenemos debug=True para ver errores específicos en el navegador
+    # Mantenemos debug=True para ver errores en tiempo real
     app.run(host='0.0.0.0', port=port, debug=True)
