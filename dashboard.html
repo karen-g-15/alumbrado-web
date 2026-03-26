@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard - Alumbrado</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='estilos.css') }}">
+</head>
+<body>
+    <nav>
+        <a href="{{ url_for('dashboard') }}">Inicio</a>
+        <a href="{{ url_for('monitoreo') }}">Monitoreo Histórico</a>
+        {% if rol == 'admin' %}
+        <a href="{{ url_for('usuarios') }}">Gestión Usuarios</a>
+        {% endif %}
+        <a href="{{ url_for('logout') }}" style="color: red;">Cerrar Sesión</a>
+    </nav>
+
+    <div class="container">
+        <h1>Bienvenida, {{ username }}</h1>
+        <p>Rol de sistema: <strong>{{ rol }}</strong></p>
+        <hr>
+        <h3>Estado del Proyecto de Alumbrado CDMX</h3>
+        <p>Utiliza el menú superior para navegar por las lecturas de los LDRs y el control de LEDs.</p>
+    </div>
+</body>
+</html>

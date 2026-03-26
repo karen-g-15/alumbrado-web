@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Monitoreo Histórico - Alumbrado</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='estilos.css') }}">
+</head>
+<body>
+    <nav>
+        <a href="{{ url_for('dashboard') }}">Inicio</a>
+        <a href="{{ url_for('monitoreo') }}">Monitoreo</a>
+        <a href="{{ url_for('logout') }}">Cerrar Sesión</a>
+    </nav>
+    <div class="container">
+        <h2>Reporte de Operación de Postes</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Identificador</th>
+                    <th>Nivel de Luz</th>
+                    <th>Estado LED</th>
+                    <th>Validación de Sistema</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in registros %}
+                <tr>
+                    <td>{{ r.fecha_registro }}</td>
+                    <td>{{ r.poste }}</td>
+                    <td>{{ r.luz }}%</td>
+                    <td><strong>{{ r.estado }}</strong></td>
+                    <td style="color: {{ 'red' if 'FALLA' in r.validacion else 'green' }}">
+                        {{ r.validacion }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
