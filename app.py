@@ -63,16 +63,34 @@ def dashboard():
 def monitoreo():
     if 'loggedin' not in session:
         return redirect(url_for('login'))
+    
+    # Obtener fechas del formulario (metodo GET)
+    f_inicio = request.args.get('fecha_inicio')
+    f_fin = request.args.get('fecha_fin')
+    
     try:
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT id, fecha_registro, poste, estado, luz, validacion FROM historico ORDER BY id DESC LIMIT 50")
+        
+        # Consulta base
+        query = "SELECT id, fecha_registro, poste, estado, luz, validacion FROM historico"
+        params = []
+
+        # Si el usuario eligió fechas, filtramos
+        if f_inicio and f_fin:
+            query += " WHERE DATE(fecha_registro) BETWEEN %s AND %s"
+            params = [f_inicio, f_fin]
+        
+        query += " ORDER BY fecha_registro DESC LIMIT 100"
+        
+        cursor.execute(query, params)
         datos = cursor.fetchall()
         cursor.close()
         conn.close()
-        return render_template('monitoreo.html', registros=datos)
+        
+        return render_template('monitoreo.html', registros=datos, f_ini=f_inicio, f_fin=f_fin)
     except Error as e:
-        return f"Error crítico: {e}"
+        return f"Error en el filtro de monitoreo: {e}"
 
 @app.route('/usuarios')
 def usuarios():
