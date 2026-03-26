@@ -13,7 +13,7 @@ def get_db_connection():
     return mysql.connector.connect(
         host='sistema-alumbrado-tese.mysql.database.azure.com',
         user='admin_alumbrado',
-        password='TU_CONTRASEÑA_DE_AZURE', # <-- Pon tu contraseña real aquí
+        password='Tese2023', # <-- Pon tu contraseña real aquí
         database='sistema_alumbrado',
         ssl_ca=cert_path
     )
