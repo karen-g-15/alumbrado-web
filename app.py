@@ -3,32 +3,37 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 import mysql.connector
 from mysql.connector import Error
 
-# 1. Configuración de Rutas Base (Evita el Error de Carpetas)
+# 1. Configuración de Rutas Absolutas (Soluciona el url_build_error)
 base_dir = os.path.dirname(os.path.abspath(__file__))
 template_dir = os.path.join(base_dir, 'templates')
 static_dir = os.path.join(base_dir, 'static')
 
-app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
+app = Flask(__name__, 
+            template_folder=template_dir, 
+            static_folder=static_dir)
+
 app.secret_key = 'ingenieria_tese_karen_2026'
 
-# 2. Ruta del Certificado SSL para Azure
+# 2. Configuración de la Base de Datos Azure
+# Asegúrate de que este archivo esté en la raíz de tu GitHub
 cert_path = os.path.join(base_dir, 'DigiCertGlobalRootG2.crt.pem')
 
 def get_db_connection():
-    """Establece conexión con Azure MySQL"""
+    """Establece la conexión con Azure MySQL"""
     return mysql.connector.connect(
         host='sistema-alumbrado-tese.mysql.database.azure.com',
         user='admin_alumbrado', # Si falla, intenta: 'admin_alumbrado@sistema-alumbrado-tese'
-        password='Tese2023', # <--- REEMPLAZA ESTO
+        password='Tese2023', # <--- REEMPLAZA CON TU CONTRASEÑA REAL
         database='sistema_alumbrado',
         port=3306,
         ssl_ca=cert_path
     )
 
-# --- RUTAS ---
+# --- RUTAS DEL SISTEMA ---
 
 @app.route('/')
 def index():
+    """Redirección inicial"""
     if 'loggedin' in session:
         return redirect(url_for('dashboard'))
     return redirect(url_for('login'))
@@ -42,7 +47,7 @@ def login():
         try:
             conn = get_db_connection()
             cursor = conn.cursor(dictionary=True)
-            # Validación de usuario
+            # Consulta de seguridad
             query = "SELECT * FROM usuarios WHERE username = %s AND password = %s"
             cursor.execute(query, (user, pw))
             account = cursor.fetchone()
@@ -57,8 +62,8 @@ def login():
             else:
                 flash("Usuario o contraseña incorrectos", "danger")
         except Error as e:
-            # Esto ayuda a ver el error real en la pantalla de login si falla la BD
-            flash(f"Error de base de datos: {e}", "warning")
+            # Si hay error de base de datos, lo verás en la pantalla
+            flash(f"Error de conexión a Azure: {e}", "warning")
             
     return render_template('login.html')
 
@@ -76,23 +81,24 @@ def monitoreo():
     try:
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
-        # Ajustado a las columnas que vimos en tus imágenes anteriores
+        # Consulta de los postes de alumbrado
         cursor.execute("SELECT id, fecha_registro, poste, estado, luz, validacion FROM historico ORDER BY id DESC LIMIT 50")
         datos = cursor.fetchall()
         cursor.close()
         conn.close()
         return render_template('monitoreo.html', registros=datos)
     except Error as e:
-        return f"Error al cargar datos de monitoreo: {e}"
+        return f"Error crítico al obtener datos: {e}"
 
 @app.route('/logout')
 def logout():
     session.clear()
     return redirect(url_for('login'))
 
-# --- ARRANQUE ---
+# --- CONFIGURACIÓN DE ARRANQUE PARA RENDER ---
+
 if __name__ == '__main__':
-    # Render usa la variable de entorno PORT, si no existe usa el 5000
+    # Render asigna un puerto dinámico mediante la variable de entorno PORT
     port = int(os.environ.get("PORT", 5000))
-    # debug=True es vital para que si algo falla, Render te diga qué es
+    # Mantenemos debug=True para ver errores específicos en el navegador
     app.run(host='0.0.0.0', port=port, debug=True)
