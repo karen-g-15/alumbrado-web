@@ -118,3 +118,4 @@ if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     # debug=True es útil para ver errores en tiempo real durante tu entrega
     app.run(host='0.0.0.0', port=port, debug=True)
+            
