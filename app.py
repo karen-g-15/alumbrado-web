@@ -94,7 +94,6 @@ def logout():
 # --- CONFIGURACIÓN DE ARRANQUE PARA RENDER ---
 
 if __name__ == '__main__':
-    # Render usa el puerto que le asigne la variable de entorno PORT
     port = int(os.environ.get("PORT", 5000))
-    # Mantenemos debug=True para ver errores en tiempo real
+    # Agregamos debug=True para ver el error real en el navegador
     app.run(host='0.0.0.0', port=port, debug=True)
